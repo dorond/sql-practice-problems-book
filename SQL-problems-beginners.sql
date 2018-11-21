@@ -87,3 +87,25 @@ ORDER BY OrderDate
 
 SELECT DISTINCT(c.Country)
 FROM Customers c
+
+/* Q17 */
+
+SELECT c.ContactTitle, COUNT(*) TotalContactTitle
+FROM Customers c
+GROUP BY c.ContactTitle
+ORDER BY TotalContactTitle DESC
+
+/* Q18 */
+
+SELECT p.ProductID, p.ProductName, s.CompanyName Supplier
+FROM Products p INNER JOIN Suppliers s
+ON p.SupplierID = s.SupplierID
+ORDER BY p.ProductID
+
+/* Q19 */
+
+SELECT o.OrderID, CAST(o.OrderDate AS Date), s.CompanyName Shipper
+FROM Orders o INNER JOIN Shippers s
+ON s.ShipperID = o.ShipVia
+WHERE o.OrderID < 10270
+ORDER BY o.OrderID
