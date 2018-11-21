@@ -61,16 +61,37 @@ SELECT FirstName, LastName, Title, CAST(BirthDate as Date) DateOnlyBirthDate
 FROM Employees
 ORDER BY BirthDate
 
+Select 
+    FirstName,
+    LastName,
+    Title,
+    DateOnlyBirthDate = convert(date, BirthDate) 
+From Employees 
+Order By Birthdate
+
 /* Q12 */
 
 SELECT e.FirstName, e.LastName, e.FirstName + ' ' + e.LastName FullName
 FROM Employees e
 
+Select 
+    FirstName,
+    LastName,
+    FullName = concat(FirstName , ' ' , LastName) 
+From Employees
+
 /* Q13 */
 
-SELECT od.OrderID, od.ProductID, od.UnitPrice, od.Quantity, FORMAT(od.UnitPrice * od.Quantity, 'N') TotalPrice
+SELECT 
+    od.OrderID, 
+    od.ProductID, 
+    od.UnitPrice, 
+    od.Quantity, 
+    TotalPrice = FORMAT(od.UnitPrice * od.Quantity, 'N') 
 FROM OrderDetails od
-ORDER BY od.OrderID, od.ProductID
+ORDER BY 
+    od.OrderID, 
+    od.ProductID
 
 /* Q14 */
 
@@ -83,10 +104,19 @@ SELECT TOP 1 OrderDate FirstOrder
 FROM Orders
 ORDER BY OrderDate
 
+Select 
+    FirstOrder = min(OrderDate) 
+From Orders
+
 /* Q16 */
 
 SELECT DISTINCT(c.Country)
 FROM Customers c
+
+Select 
+    Country 
+From Customers 
+Group by Country
 
 /* Q17 */
 
@@ -94,6 +124,13 @@ SELECT c.ContactTitle, COUNT(*) TotalContactTitle
 FROM Customers c
 GROUP BY c.ContactTitle
 ORDER BY TotalContactTitle DESC
+
+Select 
+    ContactTitle,
+    TotalContactTitle = count(*) 
+From Customers 
+Group by ContactTitle 
+Order by count(*) desc
 
 /* Q18 */
 
@@ -109,3 +146,15 @@ FROM Orders o INNER JOIN Shippers s
 ON s.ShipperID = o.ShipVia
 WHERE o.OrderID < 10270
 ORDER BY o.OrderID
+
+Select 
+    OrderID,
+    OrderDate = convert(date, OrderDate),
+    Shipper = CompanyName 
+From Orders 
+    join Shippers 
+        on Shippers.ShipperID = Orders.ShipVia 
+Where 
+    OrderID < 10270 
+Order by 
+    OrderID
