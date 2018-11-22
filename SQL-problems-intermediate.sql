@@ -117,3 +117,67 @@ Where Cast(OrderDate as Date) = '20151231'
 
 /* Q28 */
 
+select Top 3 
+    ShipCountry, 
+    AverageFreight = AVG(Freight)
+From 
+    Orders
+Where 
+    OrderDate >= DATEADD(MONTH, -12, 
+        (
+            Select MaxDate = Max(OrderDate) From Orders
+        ) 
+    )
+Group BY
+    ShipCountry
+Order BY
+    AverageFreight Desc
+
+/* Q29 */
+
+Select 
+    Orders.EmployeeID, 
+    LastName, 
+    OrderDetails.OrderID, 
+    ProductName, 
+    Quantity
+From 
+    Orders 
+        Inner Join OrderDetails 
+            On Orders.OrderID = OrderDetails.OrderID
+        Inner Join Products
+            On Products.ProductID = OrderDetails.ProductID
+        Inner Join Employees
+            On Employees.EmployeeID = Orders.EmployeeID
+Order BY
+    OrderID,
+    OrderDetails.ProductID
+
+/* Q30 */
+
+Select 
+    Customers_CustomerID = Customers.CustomerID,
+    Orders_CustomerID = Orders.CustomerID
+from
+    Customers 
+        Left Join Orders
+            On Customers.CustomerID = Orders.CustomerID
+Where 
+    Orders.CustomerID is null
+
+/* Q31 */
+
+Select 
+    Customers.CustomerID,
+    Orders.CustomerID
+from
+    Customers 
+        Left Join 
+        (
+            Select * From Orders
+            Where EmployeeID = 4
+        ) Orders
+            On Customers.CustomerID = Orders.CustomerID
+Where 
+    Orders.CustomerID is null
+
