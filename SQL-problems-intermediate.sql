@@ -38,7 +38,7 @@ Select
 From 
     Products
 Where 
-    UnitsInStock < ReorderLevel
+    UnitsInStock <= ReorderLevel
 Order BY
     ProductID
 
@@ -54,7 +54,7 @@ Select
 From 
     Products
 Where 
-    (UnitsInStock + UnitsOnOrder ) < ReorderLevel And
+    (UnitsInStock + UnitsOnOrder ) <= ReorderLevel And
     Discontinued = 0
 Order BY
     ProductID
@@ -86,6 +86,16 @@ Group BY
 Order BY
     AverageFreight Desc
 
+-- OR --
+
+Select 
+    ShipCountry 
+    ,AverageFreight = AVG(freight) 
+From Orders 
+Group By ShipCountry 
+Order by AverageFreight DESC 
+OFFSET 0 ROWS FETCH FIRST 3 ROWS ONLY
+
 /* Q26 */
 
 select Top 3 
@@ -99,6 +109,17 @@ Group BY
     ShipCountry
 Order BY
     AverageFreight Desc
+
+-- OR
+
+Select Top 3 
+    ShipCountry 
+    ,AverageFreight = avg(freight) 
+From Orders 
+Where 
+    OrderDate >= '20150101' and OrderDate < '20160101' 
+Group By ShipCountry 
+Order By AverageFreight desc
 
 /* Q27 */
 
@@ -133,25 +154,34 @@ Group BY
 Order BY
     AverageFreight Desc
 
+-- OR
+
+Select TOP (3) 
+    ShipCountry 
+    ,AverageFreight = Avg(freight) 
+From Orders Where OrderDate >= Dateadd(yy, -1, 
+    (Select max(OrderDate) from Orders)) 
+Group by ShipCountry 
+Order by AverageFreight desc;
+
 /* Q29 */
 
 Select 
-    Orders.EmployeeID, 
-    LastName, 
-    OrderDetails.OrderID, 
-    ProductName, 
-    Quantity
-From 
-    Orders 
-        Inner Join OrderDetails 
-            On Orders.OrderID = OrderDetails.OrderID
-        Inner Join Products
-            On Products.ProductID = OrderDetails.ProductID
-        Inner Join Employees
-            On Employees.EmployeeID = Orders.EmployeeID
+    Employees.EmployeeID, 
+    Employees.LastName, 
+    Orders.OrderID, 
+    Products.ProductName, 
+    OrderDetails.Quantity
+From Employees 
+    join Orders 
+        on Orders.EmployeeID = Employees.EmployeeID 
+    join OrderDetails 
+        on Orders.OrderID = OrderDetails.OrderID 
+    join Products 
+        on Products.ProductID = OrderDetails.ProductID
 Order BY
-    OrderID,
-    OrderDetails.ProductID
+    Orders.OrderID 
+    ,Products.ProductID
 
 /* Q30 */
 
@@ -164,6 +194,22 @@ from
             On Customers.CustomerID = Orders.CustomerID
 Where 
     Orders.CustomerID is null
+
+-- OR
+
+Select CustomerID 
+From Customers 
+Where CustomerID not in (select CustomerID from Orders)
+
+-- OR
+
+Select CustomerID 
+From Customers Where Not Exists 
+( 
+    Select CustomerID 
+    from Orders 
+    where Orders.CustomerID = Customers.CustomerID 
+)
 
 /* Q31 */
 
@@ -181,3 +227,14 @@ from
 Where 
     Orders.CustomerID is null
 
+-- Or
+
+Select 
+    Customers.CustomerID 
+    ,Orders.CustomerID 
+From Customers 
+    left join Orders 
+        on Orders.CustomerID = Customers.CustomerID 
+        and Orders.EmployeeID = 4 
+Where 
+    Orders.CustomerID is null
