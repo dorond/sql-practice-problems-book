@@ -73,3 +73,47 @@ Order By
     End,
     Region,
     CustomerID
+
+/* Q25 */
+
+select Top 3 
+    ShipCountry, 
+    AverageFreight = AVG(Freight)
+from 
+    Orders
+Group BY
+    ShipCountry
+Order BY
+    AverageFreight Desc
+
+/* Q26 */
+
+select Top 3 
+    ShipCountry, 
+    AverageFreight = AVG(Freight)
+From 
+    Orders
+WHERE
+    year(OrderDate) = 2015
+Group BY
+    ShipCountry
+Order BY
+    AverageFreight Desc
+
+/* Q27 */
+
+Select Top 3
+    ShipCountry,
+    AverageFreight = avg(freight) 
+From Orders 
+Where OrderDate between '20150101' and '20151231' 
+Group By ShipCountry 
+Order By AverageFreight desc
+
+Select * from Orders
+Where Cast(OrderDate as Date) = '20151231'
+
+/* 10806 is the order Id with the large freight charge on 31 dec 2015 */
+
+/* Q28 */
+
