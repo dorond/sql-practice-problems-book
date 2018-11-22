@@ -41,3 +41,35 @@ Where
     UnitsInStock < ReorderLevel
 Order BY
     ProductID
+
+/* Q23 */
+
+Select 
+    ProductId, 
+    ProductName, 
+    UnitsInStock, 
+    UnitsOnOrder,
+    ReorderLevel,
+    Discontinued
+From 
+    Products
+Where 
+    (UnitsInStock + UnitsOnOrder ) < ReorderLevel And
+    Discontinued = 0
+Order BY
+    ProductID
+
+/* Q24 */
+
+Select 
+    CustomerID,
+    CompanyName,
+    Region 
+From Customers 
+Order By 
+    Case 
+        when Region is null then 1 
+        else 0 
+    End,
+    Region,
+    CustomerID
