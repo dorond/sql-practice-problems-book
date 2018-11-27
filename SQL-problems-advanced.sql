@@ -203,3 +203,83 @@ Where
 Order by 
     OrderID 
     ,Quantity
+
+-- Q40
+
+Select 
+    OrderDetails.OrderID 
+    ,ProductID 
+    ,UnitPrice 
+    ,Quantity 
+    ,Discount 
+From OrderDetails
+Join 
+    ( 
+        Select distinct
+            OrderID 
+        From 
+            OrderDetails 
+        Where Quantity >= 60 
+        Group By OrderID, Quantity 
+        Having Count(*) > 1 
+    ) PotentialProblemOrders 
+        on PotentialProblemOrders.OrderID = OrderDetails.OrderID 
+Order by OrderID, ProductID
+
+-- Q41
+Select 
+    OrderID 
+    ,OrderDate = convert(date, OrderDate)
+    ,RequiredDate = convert(date, RequiredDate) 
+    ,ShippedDate = convert(date, ShippedDate) 
+From 
+    Orders 
+Where 
+    RequiredDate <= ShippedDate 
+Order by 
+    OrderID
+
+-- Q42
+
+;with LateOrders as (
+    Select 
+        OrderID 
+        ,OrderDate = convert(date, OrderDate)
+        ,RequiredDate = convert(date, RequiredDate) 
+        ,ShippedDate = convert(date, ShippedDate) 
+        ,EmployeeID
+    From 
+        Orders 
+    Where 
+        RequiredDate <= ShippedDate 
+) 
+
+Select 
+    Employees.EmployeeID
+    ,LastName
+    ,TotalLateOrders = Count(*)
+From Employees
+    Join LateOrders
+        On LateOrders.EmployeeID = Employees.EmployeeID
+Group By
+    Employees.EmployeeID, LastName
+Order BY
+    TotalLateOrders Desc
+
+-- OR
+
+Select 
+    Employees.EmployeeID 
+    ,LastName 
+    ,TotalLateOrders = Count(*) 
+From Orders 
+    Join Employees 
+        on Employees.EmployeeID = Orders.EmployeeID 
+Where 
+    RequiredDate <= ShippedDate 
+Group By 
+    Employees.EmployeeID 
+    ,Employees.LastName 
+Order by 
+    TotalLateOrders desc
+
