@@ -119,12 +119,12 @@ Order By
 -- Q36
 -- Show top 10 orders with the most line items.
 
-Select top 10
+Select top 10 with ties
     OrderDetails.OrderID
-    ,TotalOrderDetails = COUNT(ProductID)
+    ,TotalOrderDetails = COUNT(*)
 From 
     OrderDetails
 Group by 
     OrderID
 Order BY
-    TotalOrderDetails Desc
+    Count(*) Desc
