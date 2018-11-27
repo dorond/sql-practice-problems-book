@@ -52,3 +52,54 @@ Group by
     ,Orders.Orderid 
 Having Sum(Quantity * UnitPrice) > 10000 
 Order by TotalOrderAmount DESC
+
+-- Q33
+
+-- Customers whose total 2016 orders are $15,000 or greater
+Select 
+    Customers.CustomerID 
+    ,Customers.CompanyName 
+    ,TotalOrderAmount = SUM(Quantity * UnitPrice)
+From 
+    Customers 
+        Join Orders 
+            on Orders.CustomerID = Customers.CustomerID 
+        Join OrderDetails 
+            on Orders.OrderID = OrderDetails.OrderID 
+Where 
+    OrderDate >= '20160101' 
+    and OrderDate < '20170101' 
+Group by 
+    Customers.CustomerID 
+    ,Customers.CompanyName  
+Having Sum(Quantity * UnitPrice) > 15000 
+Order by TotalOrderAmount DESC
+
+-- Q34
+
+-- Use discount to calc high value customer
+-- Order by total incl. discount
+
+Select 
+    Customers.CustomerID 
+    ,Customers.CompanyName
+    ,TotalsWithoutDiscount = SUM(Quantity * UnitPrice)
+    ,TotalsWithDiscount = SUM(Quantity * UnitPrice * (1-Discount))
+From 
+    Customers 
+        Join Orders 
+            on Orders.CustomerID = Customers.CustomerID 
+        Join OrderDetails 
+            on Orders.OrderID = OrderDetails.OrderID 
+Where 
+    OrderDate >= '20160101' 
+    and OrderDate < '20170101' 
+Group by 
+    Customers.CustomerID 
+    ,Customers.CompanyName  
+Having SUM(Quantity * UnitPrice * (1-Discount)) > 10000 
+Order by TotalsWithDiscount DESC
+
+-- Q35
+
+
