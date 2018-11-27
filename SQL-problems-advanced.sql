@@ -153,3 +153,53 @@ Having
     Count(*) >= 2
 Order BY
     OrderID
+
+-- Q39
+
+Select 
+    OrderID
+    ,ProductID
+    ,UnitPrice
+    ,Quantity
+    ,Discount
+From 
+    OrderDetails
+Where OrderID In 
+(
+    Select
+        OrderID
+    From 
+        OrderDetails
+    Where 
+        Quantity >= 60
+    Group By
+        OrderID, Quantity
+    Having 
+        Count(*) >= 2
+)
+Order BY
+    OrderID
+    ,Quantity
+
+-- OR
+
+;with PotentialDuplicates as ( 
+    Select 
+        OrderID 
+    From OrderDetails 
+    Where Quantity >= 60 
+    Group By OrderID, Quantity 
+    Having Count(*) > 1 
+    ) 
+Select 
+    OrderID 
+    ,ProductID 
+    ,UnitPrice 
+    ,Quantity 
+    ,Discount 
+From OrderDetails 
+Where 
+    OrderID in (Select OrderID from PotentialDuplicates) 
+Order by 
+    OrderID 
+    ,Quantity
