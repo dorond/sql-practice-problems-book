@@ -101,5 +101,30 @@ Having SUM(Quantity * UnitPrice * (1-Discount)) > 10000
 Order by TotalsWithDiscount DESC
 
 -- Q35
+-- All orders on last day of month ordered by employee id and order id
 
+Select 
+    EmployeeID
+    ,OrderID
+    ,OrderDate
+From 
+    Orders
+Where 
+    --Cast(OrderDate as Date) = EOMONTH(Cast(OrderDate as Date))
+    OrderDate = EOMONTH(OrderDate)
+Order By 
+    EmployeeID,
+    OrderID
 
+-- Q36
+-- Show top 10 orders with the most line items.
+
+Select top 10
+    OrderDetails.OrderID
+    ,TotalOrderDetails = COUNT(ProductID)
+From 
+    OrderDetails
+Group by 
+    OrderID
+Order BY
+    TotalOrderDetails Desc
