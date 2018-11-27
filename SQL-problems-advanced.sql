@@ -128,3 +128,28 @@ Group by
     OrderID
 Order BY
     Count(*) Desc
+
+-- Q37
+
+Select Top 2 percent 
+    OrderID
+From Orders
+Order By NewID()
+
+-- Q38
+-- OrderID's with line items quantity 60+ but diff product ID's
+
+Select 
+    OrderID
+    --,Quantity
+    --,Count(*)
+From 
+    OrderDetails
+Where 
+    Quantity >= 60
+Group By
+    OrderID, Quantity
+Having 
+    Count(*) >= 2
+Order BY
+    OrderID
