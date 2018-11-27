@@ -29,3 +29,26 @@ FROM
                     Sum(UnitPrice * Quantity) >= 10000
             ) OrderDetails 
             On OrderDetails.OrderID = Orders.OrderID
+
+-- OR
+
+Select 
+    Customers.CustomerID 
+    ,Customers.CompanyName 
+    ,Orders.OrderID 
+    ,TotalOrderAmount = SUM(Quantity * UnitPrice)
+From 
+    Customers 
+        Join Orders 
+            on Orders.CustomerID = Customers.CustomerID 
+        Join OrderDetails 
+            on Orders.OrderID = OrderDetails.OrderID 
+Where 
+    OrderDate >= '20160101' 
+    and OrderDate < '20170101' 
+Group by 
+    Customers.CustomerID 
+    ,Customers.CompanyName 
+    ,Orders.Orderid 
+Having Sum(Quantity * UnitPrice) > 10000 
+Order by TotalOrderAmount DESC
