@@ -315,4 +315,103 @@ From Employees
         on LateOrders.EmployeeID = Employees.EmployeeID
 Order BY
     EmployeeID
-        
+
+-- Q44
+;With LateOrders as 
+( 
+    Select 
+        EmployeeID 
+        ,TotalOrders = Count(*) 
+    From Orders 
+    Where RequiredDate <= ShippedDate 
+    Group By EmployeeID 
+) 
+, AllOrders as 
+( 
+    Select 
+        EmployeeID 
+        ,TotalOrders = Count(*) 
+    From Orders 
+    Group By EmployeeID 
+) 
+
+Select 
+    Employees.EmployeeID 
+    ,LastName 
+    ,AllOrders = AllOrders.TotalOrders 
+    ,LateOrders = LateOrders.TotalOrders 
+From Employees 
+    Join AllOrders 
+        on AllOrders.EmployeeID = Employees.EmployeeID 
+    Left Join LateOrders 
+        on LateOrders.EmployeeID = Employees.EmployeeID
+Order BY
+    EmployeeID
+
+-- Q45
+;With LateOrders as 
+( 
+    Select 
+        EmployeeID 
+        ,TotalOrders = Count(*) 
+    From Orders 
+    Where RequiredDate <= ShippedDate 
+    Group By EmployeeID 
+) 
+, AllOrders as 
+( 
+    Select 
+        EmployeeID 
+        ,TotalOrders = Count(*) 
+    From Orders 
+    Group By EmployeeID 
+) 
+
+Select 
+    Employees.EmployeeID 
+    ,LastName 
+    ,AllOrders = AllOrders.TotalOrders 
+    ,LateOrders = IsNull(LateOrders.TotalOrders, 0)
+From Employees 
+    Join AllOrders 
+        on AllOrders.EmployeeID = Employees.EmployeeID 
+    Left Join LateOrders 
+        on LateOrders.EmployeeID = Employees.EmployeeID
+Order BY
+    EmployeeID
+
+-- Or
+;With LateOrders as 
+( 
+    Select 
+        EmployeeID 
+        ,TotalOrders = Count(*) 
+    From Orders 
+    Where RequiredDate <= ShippedDate 
+    Group By EmployeeID 
+) 
+, AllOrders as 
+( 
+    Select 
+        EmployeeID 
+        ,TotalOrders = Count(*) 
+    From Orders 
+    Group By EmployeeID 
+) 
+
+Select 
+    Employees.EmployeeID 
+    ,LastName 
+    ,AllOrders = AllOrders.TotalOrders 
+    ,LateOrders = 
+        Case 
+            When LateOrders.TotalOrders is null Then 0 
+            Else LateOrders.TotalOrders 
+        End
+From Employees 
+    Join AllOrders 
+        on AllOrders.EmployeeID = Employees.EmployeeID 
+    Left Join LateOrders 
+        on LateOrders.EmployeeID = Employees.EmployeeID
+Order BY
+    EmployeeID
