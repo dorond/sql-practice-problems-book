@@ -558,3 +558,35 @@ Select
 from Orders2016 
 Order by CustomerID
 
+-- Q49
+-- Fix Null in row 43: MAISD	Maison Dewey	5000.2000	NULL
+;with Orders2016 as ( 
+    Select 
+        Customers.CustomerID 
+        ,Customers.CompanyName 
+        ,TotalOrderAmount = SUM(Quantity * UnitPrice) 
+    From Customers 
+        Join Orders 
+            on Orders.CustomerID = Customers.CustomerID 
+        Join OrderDetails 
+            on Orders.OrderID = OrderDetails.OrderID 
+    Where 
+        OrderDate >= '20160101' and OrderDate < '20170101' 
+    Group by 
+        Customers.CustomerID 
+        ,Customers.CompanyName 
+) 
+
+Select 
+    CustomerID 
+    ,CompanyName 
+    ,TotalOrderAmount 
+    ,CustomerGroup = 
+        Case 
+            When TotalOrderAmount < 1000 Then 'Low'
+            When TotalOrderAmount >= 1000 And TotalOrderAmount < 5000 Then 'Medium'
+            When TotalOrderAmount >= 5000 And TotalOrderAmount < 10000 Then 'High'
+            Else 'Very High'
+        End
+from Orders2016 
+Order by CustomerID
