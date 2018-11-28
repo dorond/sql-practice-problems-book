@@ -672,3 +672,70 @@ from
 group by 
     CustomerGroup 
 order by TotalInGroup desc
+
+-- Q51
+;with Orders2016 as ( 
+    Select 
+        Customers.CustomerID 
+        ,Customers.CompanyName 
+        ,TotalOrderAmount = SUM(Quantity * UnitPrice) 
+    From Customers 
+        Join Orders 
+            on Orders.CustomerID = Customers.CustomerID 
+        Join OrderDetails 
+            on Orders.OrderID = OrderDetails.OrderID 
+    Where 
+        OrderDate >= '20160101' and OrderDate < '20170101' 
+    Group by 
+        Customers.CustomerID 
+        ,Customers.CompanyName 
+) 
+
+Select 
+    CustomerID 
+    ,CompanyName 
+    ,TotalOrderAmount 
+    ,CustomerGroup = 
+        Case 
+            When TotalOrderAmount < 
+                (select RangeTop from CustomerGroupThresholds Where CustomerGroupName = 'Low') Then 'Low'
+            When TotalOrderAmount >= 
+                 (select RangeBottom from CustomerGroupThresholds Where CustomerGroupName = 'Medium') And TotalOrderAmount < (select RangeTop from CustomerGroupThresholds Where CustomerGroupName = 'Medium') Then 'Medium'
+            When TotalOrderAmount >= 
+             (select RangeBottom from CustomerGroupThresholds Where CustomerGroupName = 'High') And TotalOrderAmount < (select RangeTop from CustomerGroupThresholds Where CustomerGroupName = 'High') Then 'High'
+            Else 'Very High'
+        End
+from Orders2016 
+Order by CustomerID
+
+-- Or
+
+;with Orders2016 as 
+( 
+    Select 
+        Customers.CustomerID 
+        ,Customers.CompanyName 
+        ,TotalOrderAmount = SUM(Quantity * UnitPrice) 
+    From 
+        Customers 
+            Join Orders 
+                on Orders.CustomerID = Customers.CustomerID 
+            Join OrderDetails 
+                on Orders.OrderID = OrderDetails.OrderID 
+    Where OrderDate >= '20160101' and OrderDate < '20170101' 
+    Group by 
+        Customers.CustomerID 
+        ,Customers.CompanyName 
+) 
+
+Select 
+    CustomerID 
+    ,CompanyName 
+    ,TotalOrderAmount 
+    ,CustomerGroupName 
+from 
+    Orders2016 
+        Join CustomerGroupThresholds 
+            on Orders2016.TotalOrderAmount between 
+                CustomerGroupThresholds.RangeBottom and CustomerGroupThresholds.RangeTop 
+Order by CustomerID 
