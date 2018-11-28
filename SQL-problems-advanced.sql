@@ -590,3 +590,85 @@ Select
         End
 from Orders2016 
 Order by CustomerID
+
+-- Q50
+;with Groups2016 as ( 
+    Select 
+        Customers.CustomerID 
+        ,Customers.CompanyName 
+        ,CustomerGroup = 
+        Case 
+            When SUM(Quantity * UnitPrice) < 1000 Then 'Low'
+            When SUM(Quantity * UnitPrice) >= 1000 And SUM(Quantity * UnitPrice) < 5000 Then 'Medium'
+            When SUM(Quantity * UnitPrice) >= 5000 And SUM(Quantity * UnitPrice) < 10000 Then 'High'
+            Else 'Very High'
+        End
+    From Customers 
+        Join Orders 
+            on Orders.CustomerID = Customers.CustomerID 
+        Join OrderDetails 
+            on Orders.OrderID = OrderDetails.OrderID 
+    Where 
+        OrderDate >= '20160101' and OrderDate < '20170101' 
+    Group by 
+        Customers.CustomerID 
+        ,Customers.CompanyName 
+)
+
+Select 
+    CustomerGroup
+    ,TotalInGroup = Count(*) 
+    ,PercentageInGroup = Count(*)*1.00/(select Count(*) from Groups2016)
+From 
+    Groups2016 
+Group By
+    CustomerGroup
+Order By
+    TotalInGroup Desc
+
+-- Or
+
+;with Orders2016 as 
+( 
+    Select 
+        Customers.CustomerID 
+        ,Customers.CompanyName 
+        ,TotalOrderAmount = SUM(Quantity * UnitPrice) 
+    From 
+        Customers 
+            join Orders 
+                on Orders.CustomerID = Customers.CustomerID 
+            join OrderDetails 
+                on Orders.OrderID = OrderDetails.OrderID 
+    Where OrderDate >= '20160101' and OrderDate < '20170101' 
+    Group By 
+        Customers.CustomerID 
+        ,Customers.CompanyName 
+) 
+
+,CustomerGrouping as 
+( 
+    Select 
+        CustomerID 
+        ,CompanyName 
+        ,TotalOrderAmount 
+        ,CustomerGroup = 
+            case 
+                when TotalOrderAmount >= 0 and TotalOrderAmount < 1000 then 'Low' 
+                when TotalOrderAmount >= 1000 and TotalOrderAmount < 5000 then 'Medium' 
+                when TotalOrderAmount >= 5000 and TotalOrderAmount <10000 then 'High' 
+                when TotalOrderAmount >= 10000 then 'Very High' 
+            end 
+    from Orders2016 
+    -- Order by CustomerID 
+) 
+
+Select 
+    CustomerGroup 
+    ,TotalInGroup = Count(*) 
+    ,PercentageInGroup = Count(*) * 1.0/ (select count(*) from CustomerGrouping) 
+from 
+    CustomerGrouping 
+group by 
+    CustomerGroup 
+order by TotalInGroup desc
