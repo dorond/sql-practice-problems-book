@@ -739,3 +739,33 @@ from
             on Orders2016.TotalOrderAmount between 
                 CustomerGroupThresholds.RangeBottom and CustomerGroupThresholds.RangeTop 
 Order by CustomerID 
+
+-- Q52
+Select Country From Customers
+UNION
+Select Country From Suppliers
+Order By Country
+
+-- Q53
+;With SupplierCountries as (
+    Select Distinct
+        Country 
+    From Suppliers
+)
+, CustomerCountries as (
+    Select Distinct
+        Country 
+    From Customers
+)
+
+Select 
+    SupplierCountry = SupplierCountries.Country
+    ,CustomerCountry = CustomerCountries.Country
+
+From 
+    SupplierCountries 
+        Full Outer Join CustomerCountries
+            On SupplierCountries.Country = CustomerCountries.Country
+
+
+-- Q54
