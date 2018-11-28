@@ -826,3 +826,51 @@ From
     SupplierCountries 
         Full Outer Join CustomerCountries 
             on CustomerCountries.Country = SupplierCountries.Country
+
+-- Q55
+;with OrdersByCountry as 
+( 
+    Select 
+        ShipCountry 
+        ,CustomerID 
+        ,OrderID 
+        ,OrderDate = convert(date, OrderDate) 
+        ,RowNumberPerCountry = 
+            Row_Number() 
+                over (Partition by ShipCountry Order by ShipCountry, OrderID) 
+    From Orders 
+) 
+
+Select 
+    ShipCountry 
+    ,CustomerID 
+    ,OrderID 
+    ,OrderDate 
+From 
+    OrdersByCountry 
+Where 
+    RowNumberPerCountry = 1 
+Order by ShipCountry
+
+-- Or
+
+;with FirstOrderPerCountry as 
+( 
+    Select 
+        ShipCountry 
+        ,MinOrderID = min(OrderID) 
+    From 
+        Orders 
+    Group by 
+        ShipCountry
+) 
+
+Select 
+    Orders.ShipCountry 
+    ,CustomerID 
+    ,OrderID 
+from 
+    FirstOrderPerCountry 
+        Join Orders 
+            on Orders.OrderID = FirstOrderPerCountry.MinOrderID 
+Order by Orders.ShipCountry
