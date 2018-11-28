@@ -415,3 +415,146 @@ From Employees
         on LateOrders.EmployeeID = Employees.EmployeeID
 Order BY
     EmployeeID
+
+-- Q46
+;With LateOrders as 
+( 
+    Select 
+        EmployeeID 
+        ,TotalOrders = Count(*) 
+    From Orders 
+    Where RequiredDate <= ShippedDate 
+    Group By EmployeeID 
+) 
+, AllOrders as 
+( 
+    Select 
+        EmployeeID 
+        ,TotalOrders = Count(*) 
+    From Orders 
+    Group By EmployeeID 
+) 
+
+Select 
+    Employees.EmployeeID 
+    ,LastName 
+    ,AllOrders = AllOrders.TotalOrders 
+    ,LateOrders = IsNull(LateOrders.TotalOrders, 0) 
+    ,PercentLateOrders = (IsNull(LateOrders.TotalOrders, 0) * 1.00) / AllOrders.TotalOrders
+From Employees 
+    Join AllOrders 
+        on AllOrders.EmployeeID = Employees.EmployeeID 
+    Left Join LateOrders 
+        on LateOrders.EmployeeID = Employees.EmployeeID
+Order BY
+    EmployeeID
+
+-- Q47
+;With LateOrders as 
+( 
+    Select 
+        EmployeeID 
+        ,TotalOrders = Count(*) 
+    From Orders 
+    Where RequiredDate <= ShippedDate 
+    Group By EmployeeID 
+) 
+, AllOrders as 
+( 
+    Select 
+        EmployeeID 
+        ,TotalOrders = Count(*) 
+    From Orders 
+    Group By EmployeeID 
+) 
+
+Select 
+    Employees.EmployeeID 
+    ,LastName 
+    ,AllOrders = AllOrders.TotalOrders 
+    ,LateOrders = IsNull(LateOrders.TotalOrders, 0) 
+    ,PercentLateOrders = 
+        Convert(
+            Decimal(2, 2)
+            ,(IsNull(LateOrders.TotalOrders, 0) * 1.00) / AllOrders.TotalOrders
+        )
+From Employees 
+    Join AllOrders 
+        on AllOrders.EmployeeID = Employees.EmployeeID 
+    Left Join LateOrders 
+        on LateOrders.EmployeeID = Employees.EmployeeID
+Order BY
+    EmployeeID
+
+--Q48
+;with Orders2016 as (
+    SELECT
+        CustomerID = Orders.CustomerID
+        ,TotalOrderAmount = SUM(Quantity * UnitPrice)
+        
+    From 
+        OrderDetails 
+            Join Orders
+                On Orders.OrderID = OrderDetails.OrderID
+    Where 
+        OrderDate >= '20160101' 
+        and OrderDate < '20170101' 
+    Group BY
+        Orders.CustomerID
+)
+
+Select 
+    Customers.CustomerID 
+    ,Customers.CompanyName 
+    ,Convert(Decimal(18, 2), Orders2016.TotalOrderAmount)
+    ,CustomerGroup = 
+        Case 
+            When TotalOrderAmount < 1000 Then 'Low'
+            When TotalOrderAmount >= 1000 And TotalOrderAmount < 5000 Then 'Medium'
+            When TotalOrderAmount >= 5000 And TotalOrderAmount < 10000 Then 'High'
+            Else 'Very High'
+        End
+From 
+    Customers 
+        Join Orders2016 
+            on Customers.CustomerID = Orders2016.CustomerID 
+        
+Group by 
+    Customers.CustomerID 
+    ,Customers.CompanyName
+    ,Orders2016.TotalOrderAmount
+Order by CustomerID
+
+-- Or
+
+;with Orders2016 as ( 
+    Select 
+        Customers.CustomerID 
+        ,Customers.CompanyName 
+        ,TotalOrderAmount = SUM(Quantity * UnitPrice) 
+    From Customers 
+        Join Orders 
+            on Orders.CustomerID = Customers.CustomerID 
+        Join OrderDetails 
+            on Orders.OrderID = OrderDetails.OrderID 
+    Where 
+        OrderDate >= '20160101' and OrderDate < '20170101' 
+    Group by 
+        Customers.CustomerID 
+        ,Customers.CompanyName 
+) 
+
+Select 
+    CustomerID 
+    ,CompanyName 
+    ,TotalOrderAmount 
+    ,CustomerGroup = 
+        Case 
+            when TotalOrderAmount between 0 and 1000 then 'Low' 
+            when TotalOrderAmount between 1001 and 5000 then 'Medium' 
+            when TotalOrderAmount between 5001 and 10000 then 'High' 
+            when TotalOrderAmount > 10000 then 'Very High' 
+        End 
+from Orders2016 
+Order by CustomerID
+
