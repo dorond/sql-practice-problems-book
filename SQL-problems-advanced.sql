@@ -767,5 +767,62 @@ From
         Full Outer Join CustomerCountries
             On SupplierCountries.Country = CustomerCountries.Country
 
-
 -- Q54
+;With SupplierCountries as (
+    Select 
+        Country
+        ,TotalSuppliers = Count(*)
+    From Suppliers
+    Group By Country
+)
+, CustomerCountries as (
+    Select 
+        Country
+        ,TotalCustomers = Count(*)
+    From Customers
+    Group By Country
+)
+
+, AllCountries as (
+    Select Country From Customers
+    UNION
+    Select Country From Suppliers
+)
+
+Select 
+    Country = AllCountries.Country
+    ,TotalSuppliers = isNull(SupplierCountries.TotalSuppliers, 0)
+    ,TotalCustomers = isNull(CustomerCountries.TotalCustomers, 0)
+From AllCountries
+    Left Join CustomerCountries
+        On AllCountries.Country = CustomerCountries.Country
+    Left Join SupplierCountries
+        On AllCountries.Country = SupplierCountries.Country
+
+-- Or
+
+;With SupplierCountries as 
+(
+    Select 
+        Country 
+        ,Total = Count(*) 
+    from Suppliers 
+    group by Country
+) 
+,CustomerCountries as 
+(
+    Select 
+        Country 
+        ,Total = Count(*) 
+    from Customers 
+    group by Country
+) 
+
+Select 
+    Country = isnull( SupplierCountries.Country, CustomerCountries.Country) 
+    ,TotalSuppliers= isnull(SupplierCountries.Total,0) 
+    ,TotalCustomers= isnull(CustomerCountries.Total,0) 
+From 
+    SupplierCountries 
+        Full Outer Join CustomerCountries 
+            on CustomerCountries.Country = SupplierCountries.Country
