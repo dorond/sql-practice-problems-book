@@ -79,3 +79,58 @@ From
     ) ProductFirstLastOrders
     Join Product 
         On Product.ProductID = ProductFirstLastOrders.ProductID
+
+-- Q5
+Select 
+    ProductID
+    ,StandardCost 
+from ProductCostHistory
+Where 
+    '2012-04-15' between StartDate and EndDate
+Order BY
+    ProductID
+
+-- Q6
+Select 
+    ProductID
+    ,StandardCost 
+from ProductCostHistory
+Where 
+    '2014-04-15' between StartDate and isNull(EndDate, getdate())
+Order BY
+    ProductID
+
+-- Q7
+--select * from ProductListPriceHistory
+-- CTE Solution
+;With ProductsChangesByMonth as 
+(
+    Select 
+        ProductListPriceMonth = Convert(varchar, Year(StartDate)) + '/' + Convert(varchar, MONTH(StartDate))
+    FROM    
+        ProductListPriceHistory
+)
+
+Select 
+    ProductListPriceMonth
+    ,TotalRows = Count(*)
+From 
+    ProductsChangesByMonth
+Group BY    
+    ProductListPriceMonth
+
+-- Subquery Solution
+Select 
+    ProductListPriceMonth
+    ,TotalRows = Count(*)
+From 
+    (
+        Select 
+            ProductListPriceMonth = Convert(varchar, Year(StartDate)) + '/' + Convert(varchar, MONTH(StartDate))
+        FROM    
+            ProductListPriceHistory
+    ) ProductsChangesByMonth
+Group BY    
+    ProductListPriceMonth
+
+
