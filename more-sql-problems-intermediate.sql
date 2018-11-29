@@ -155,3 +155,28 @@ Group by
     Convert(varchar(7), StartDate, 111)
 Order by 
     ProductListPriceMonth
+
+-- Q8
+Select
+    CalendarMonth
+    ,TotalRows = Count(ProductListPriceHistory.StartDate )
+From 
+    Calendar
+        left join ProductListPriceHistory
+            on ProductListPriceHistory.StartDate = Calendar.CalendarDate
+Where
+    Calendar.CalendarDate >=
+    (   
+        Select Min(StartDate) 
+        from ProductListPriceHistory
+    )
+    and 
+    Calendar.CalendarDate <=
+    (   
+        Select Max(StartDate) 
+        from ProductListPriceHistory
+    )
+Group by
+    CalendarMonth
+Order by 
+    CalendarMonth
