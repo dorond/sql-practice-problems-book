@@ -133,4 +133,25 @@ From
 Group BY    
     ProductListPriceMonth
 
+-- Or
+Select
+    ProductListPriceMonth = Format( StartDate, 'yyyy/MM')
+    ,TotalRows = Count(*)
+From 
+    ProductListPriceHistory
+Group by 
+    Format( StartDate, 'yyyy/MM')
+Order by 
+    ProductListPriceMonth
 
+-- Or
+
+Select
+    ProductListPriceMonth = Convert(varchar(7), StartDate, 111)
+    ,TotalRows = Count(*)
+From 
+    ProductListPriceHistory
+Group by 
+    Convert(varchar(7), StartDate, 111)
+Order by 
+    ProductListPriceMonth
