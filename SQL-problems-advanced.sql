@@ -900,3 +900,30 @@ where
 Order by 
     InitialOrder.CustomerID 
     ,InitialOrder.OrderID
+
+-- Q57
+;With NextOrders As 
+(
+    Select 
+        CustomerID 
+        ,OrderDate = convert(date, OrderDate) 
+        ,NextOrderDate = 
+            convert( 
+                date 
+                ,Lead(OrderDate,1) 
+                    OVER (Partition by CustomerID order by CustomerID, OrderDate) 
+                ) 
+    From 
+        Orders 
+    
+)
+
+Select 
+    CustomerID
+    ,OrderDate
+    ,NextOrderDate
+    ,DaysBetweenOrders = DATEDIFF(dd, OrderDate, NextOrderDate)
+FROM
+    NextOrders 
+Where 
+    DATEDIFF(dd, OrderDate, NextOrderDate) <= 5
