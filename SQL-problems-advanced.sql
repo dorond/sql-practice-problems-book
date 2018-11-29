@@ -874,3 +874,29 @@ from
         Join Orders 
             on Orders.OrderID = FirstOrderPerCountry.MinOrderID 
 Order by Orders.ShipCountry
+
+-- Q56
+-- Show customers that have placed more than 1 order within a 5 day period
+
+Select 
+    InitialOrder.CustomerID 
+    ,InitialOrderID = InitialOrder.OrderID 
+    ,InitialOrderDate = InitialOrder.OrderDate 
+    ,NextOrderID = NextOrder.OrderID 
+    ,NextOrderDate = NextOrder.OrderDate 
+    ,DaysBetweenOrders = DATEDIFF(
+            dd
+            ,InitialOrder.OrderDate
+            ,NextOrder.OrderDate)
+from 
+    Orders InitialOrder 
+        join Orders NextOrder 
+            on InitialOrder.CustomerID = NextOrder.CustomerID 
+where 
+    InitialOrder.OrderID < NextOrder.OrderID AND
+    DATEDIFF(dd
+            ,InitialOrder.OrderDate
+            ,NextOrder.OrderDate) <= 5
+Order by 
+    InitialOrder.CustomerID 
+    ,InitialOrder.OrderID
